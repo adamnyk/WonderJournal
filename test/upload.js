@@ -3,9 +3,8 @@ const fs = require("fs");
 const s3Client = new S3Client({});
 
 const bucketName = "wonder-journal";
-const fileName = "screenshot.png";
+const fileName = "screenshot2.png";
 const fileData = fs.readFileSync(fileName);
-
 
 s3Client.send(
 	new PutObjectCommand({
@@ -21,4 +20,3 @@ s3Client.send(
 			console.log(`File uploaded successfully. ${data.Location}`);
 		}
 	};
-
