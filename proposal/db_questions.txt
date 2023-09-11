@@ -1,0 +1,6 @@
+MEDIA
+
+• Does media FK moment_id work or is it better to nomalize with many > many?  
+• Media is probably not used by other moments
+• Should I add a ‘type’ column? (video, img, audio)
+• Change name? moment_media?
