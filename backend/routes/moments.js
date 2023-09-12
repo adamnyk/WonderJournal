@@ -50,26 +50,26 @@ router.post("/", ensureCorrectUserOrAdmin, async function (req, res, next) {
  * Authorization required: none
  */
 
-router.get("/", async function (req, res, next) {
-//     const q = req.query;
+// router.get("/", async function (req, res, next) {
+// //     const q = req.query;
     
-//   // arrive as strings from querystring, but we want as int/bool
-//   if (q.minSalary !== undefined) q.minSalary = +q.minSalary;
-//   q.hasEquity = q.hasEquity === "true";
+// //   // arrive as strings from querystring, but we want as int/bool
+// //   if (q.minSalary !== undefined) q.minSalary = +q.minSalary;
+// //   q.hasEquity = q.hasEquity === "true";
 
-  try {
-    // const validator = jsonschema.validate(q, jobSearchSchema);
-    // if (!validator.valid) {
-    //   const errs = validator.errors.map(e => e.stack);
-    //   throw new BadRequestError(errs);
-    // }
+//   try {
+//     // const validator = jsonschema.validate(q, jobSearchSchema);
+//     // if (!validator.valid) {
+//     //   const errs = validator.errors.map(e => e.stack);
+//     //   throw new BadRequestError(errs);
+//     // }
 
-    const moments = await Moment.findAll(q);
-    return res.json({ jobs });
-  } catch (err) {
-    return next(err);
-  }
-});
+//     const moments = await Moment.findAll(q);
+//     return res.json({ jobs });
+//   } catch (err) {
+//     return next(err);
+//   }
+// });
 
 /** GET /[momentId] => { moment }
  *
