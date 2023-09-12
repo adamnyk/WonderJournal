@@ -117,7 +117,7 @@ class User {
 	/** Given a username, return data about user.
 	 *
 	 * Returns { username, first_name, last_name, is_admin, jobs }
-	 *   where moments is { id, title, moment_text }
+	 *   where moments is { id, title, text }
 	 *
 	 * Throws NotFoundError if user not found.
 	 **/
@@ -139,13 +139,14 @@ class User {
 		if (!user) throw new NotFoundError(`No user: ${username}`);
 
 		const userMomentsRes = await db.query(
-			`SELECT id, title, text
-           FROM moments AS m
-           WHERE m.username = $1`,
+			`SELECT id
+        	FROM moments
+           WHERE username = $1`,
 			[username]
 		);
-
-		user.moments = userMomentsRes.rows.map((m) => m.moment_id);
+		
+		console.log(userMomentsRes.rows)
+		user.moments = userMomentsRes.rows.map((m) => m.id);
 		return user;
 	}
 
@@ -208,6 +209,37 @@ class User {
 		const user = result.rows[0];
 
 		if (!user) throw new NotFoundError(`No user: ${username}`);
+	}
+
+	/** Given a username, return all of that users moments.
+	 *
+	 * Returns {[{id, title, text},...] }
+	 *
+	 * Throws NotFoundError if user not found.
+	 **/
+
+	static async getMoments(username) {
+		const preCheck = await db.query(
+			`SELECT username
+			From users
+			WHERE username = $1`,
+			[username]
+		);
+		const user = preCheck.rows[0];
+		if (!user) throw new NotFoundError(`No user: ${username}`);
+
+		const res = await db.query(
+			`SELECT id,
+                  	title,
+                	text
+           FROM moments
+           WHERE username = $1`,
+			[username]
+		);
+
+		const moments = res.rows;
+
+		return moments;
 	}
 }
 

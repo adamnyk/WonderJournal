@@ -18,8 +18,7 @@ CREATE TABLE moments (
 
 CREATE TABLE media (
   id SERIAL PRIMARY KEY,
-  url TEXT,
-  type TEXT,
+  url TEXT
   moment_id INTEGER NOT NULL
     REFERENCES moments ON DELETE CASCADE
 );
