@@ -24,10 +24,8 @@ app.use(morgan("tiny"));
 app.use(authenticateJWT);
 
 app.use("/auth", authRoutes);
-app.use("/users/:username/moments", momentsRoutes);
+app.use("/moments", momentsRoutes);
 app.use("/users", usersRoutes);
-// app.use("/tags", tagsRoutes);
-// app.use("/media", mediaRoutes);
 
 
 /** Handle 404 errors -- this matches everything */

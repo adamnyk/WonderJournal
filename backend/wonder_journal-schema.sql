@@ -4,21 +4,24 @@ CREATE TABLE users (
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
   email TEXT NOT NULL
-    CHECK (position('@' IN email) > 1),
-  is_admin BOOLEAN NOT NULL DEFAULT FALSE
+    CHECK (position('@' IN email) > 1)
 );
 
 CREATE TABLE moments (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   text TEXT NOT NULL,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
   username VARCHAR(25) NOT NULL
     REFERENCES users ON DELETE CASCADE
 );
 
-CREATE TABLE media (
+CREATE TYPE media_type AS ENUM ('video','image','audio');
+
+CREATE TABLE moment_media (
   id SERIAL PRIMARY KEY,
-  url TEXT
+  url TEXT NOT NULL,
+  type media_type NOT NULL,
   moment_id INTEGER NOT NULL
     REFERENCES moments ON DELETE CASCADE
 );
@@ -26,7 +29,7 @@ CREATE TABLE media (
 CREATE TABLE tags (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
-  username VARCHAR(25)
+  username VARCHAR(25) NOT NULL
     REFERENCES users ON DELETE CASCADE
 );
 

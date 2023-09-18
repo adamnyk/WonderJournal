@@ -8,11 +8,19 @@
     },
     "text": {
       "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "username": {
+      "type": "string"
     }
   },
   "additionalProperties": false,
   "required": [
     "title",
-    "text"
+    "text",
+    "username"
   ]
 }

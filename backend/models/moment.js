@@ -1,36 +1,26 @@
 "use strict";
 
 const db = require("../db");
-const { NotFoundError, UnauthorizedError } = require("../expressError");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const { NotFoundError } = require("../expressError");
+const { sqlForPartialUpdate, sqlForPartialInsert } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
 class Moment {
 	/** Create a moment (from data), update db, return new moment data.
 	 *
-	 * json request body should be { title, type }
+	 * Data should be { title, text, username } and can optionally include {date}
 	 *
-	 * Returns { id, title, type, username }
+	 * Returns { id, title, text, date, username }
 	 **/
 
-	static async create(username, { title, text }) {
-		const preCheck = await db.query(
-			`SELECT username
-      		FROM users
-      		WHERE username = $1`, [username]);
-    const user = preCheck.rows[0];
-    
-    if (!user) throw new NotFoundError(`No user: ${username}`);
+	static async create(data) {
+		const { insertCols, values, params } = sqlForPartialInsert(data);
+		const query = `INSERT into moments ${insertCols}
+						VALUES ${values}
+						RETURNING id, title, text, date, username`;
+		const result = await db.query(query, params);
 
-		const result = await db.query(
-			`INSERT INTO moments (title,
-                               	text,
-                                username)
-           VALUES ($1, $2, $3)
-           RETURNING id, title, text, username`,
-			[title, text, username]
-		);
 		let moment = result.rows[0];
 
 		return moment;
@@ -40,21 +30,33 @@ class Moment {
 	 *
 	 * searchFilters (all optional):
 	 * - username (returns all moments belonging to user)
-	 * - hasMedia (true returns only jobs with at least one object of associated media)
-	 * - hasTag (will find results that contain one or more tags)
 	 * - title (will find case-insensitive, partial matches)
+	 * - tag (will find results that contain one or more tags)
 	 * - text (will find case-insensitive, partial matches)
+	 * - hasMedia (true returns only jobs with at least one object of associated media)
 	 *
 	 * Returns [{ id, title, momentText, username }, ...]
 	 * */
 
-	static async findAll({ username, hasMedia, tag, title, text } = {}) {
+	static async findAll(username, searchFilters = {}) {
+		const preCheck = await db.query(
+			`SELECT username
+			From users
+			WHERE username = $1`,
+			[username]
+		);
+		const user = preCheck.rows[0];
+		if (!user) throw new NotFoundError(`No user: ${username}`);
+
+		const { tag, title } = searchFilters;
 		let query = `SELECT m.id,
                         m.title,
                         m.text,
-                        m.username,
-                 FROM moments
-                   LEFT JOIN media AS med ON c.handle = j.company_handle`;
+						COALESCE(json_agg(t.name) FILTER (WHERE t.name IS NOT NULL), '[]') AS tags
+                 	FROM moments m
+					LEFT JOIN moments_tags mt ON mt.moment_id = m.id
+					LEFT JOIN tags t ON t.id = mt.tag_id
+                `;
 		let whereExpressions = [];
 		let queryValues = [];
 
@@ -66,54 +68,51 @@ class Moment {
 			whereExpressions.push(`m.username = $${queryValues.length}`);
 		}
 
-		if (hasMedia === true) {
-			queryValues.push(hasMedia);
-			whereExpressions.push(`media $${queryValues.length}`);
-		}
-
-		if (hasEquity === true) {
-			whereExpressions.push(`equity > 0`);
-		}
-
 		if (title !== undefined) {
 			queryValues.push(`%${title}%`);
-			whereExpressions.push(`title ILIKE $${queryValues.length}`);
+			whereExpressions.push(`m.title ILIKE $${queryValues.length}`);
 		}
 
 		if (whereExpressions.length > 0) {
 			query += " WHERE " + whereExpressions.join(" AND ");
 		}
 
+		query += ` GROUP BY m.id`;
+
+		if (tag !== undefined) {
+			queryValues.push(tag);
+			query += ` HAVING $${queryValues.length} = ANY (array_agg(t.name)) `;
+		}
 		// Finalize query and return results
 
-		query += " ORDER BY id";
-		const jobsRes = await db.query(query, queryValues);
+		query += ` ORDER BY m.id`;
 
-		// Optional 2nd query for media
-		if (hasMedia !== undefined) {
-			let mediaQuery = `SELECT id`;
-		}
+		console.log(queryValues);
+		console.log(whereExpressions);
+		console.log(query);
+		const momentRes = await db.query(query, queryValues);
 
-		return jobsRes.rows;
+		return momentRes.rows;
 	}
 
 	/** Given a moment id, return data about moment.
 	 *
 	 * Returns { id, title, text, username}
-	 *   where media is { mediaId, mediaURL}
+	 *   where media is { id, url, type}
 	 *
 	 * Throws NotFoundError if not found.
 	 **/
 
-	static async get(username, id) {
+	static async get(id) {
 		const momentRes = await db.query(
 			`SELECT id,
                   title,
                   text,
+				  date,
                   username
            FROM moments
-           WHERE id = $1 AND username = $2`,
-			[id, username]
+           WHERE id = $1`,
+			[id]
 		);
 
 		const moment = momentRes.rows[0];
@@ -122,13 +121,23 @@ class Moment {
 
 		const mediaRes = await db.query(
 			`SELECT id,
-                  url
-           FROM media
+                  url,
+				  type
+           FROM moment_media
            WHERE moment_id = $1`,
 			[moment.id]
 		);
 
 		moment.media = mediaRes.rows;
+
+		const tagRes = await db.query(
+			`SELECT id, name
+			FROM tags
+			JOIN moments_tags mt ON id = mt.tag_id
+			WHERE mt.moment_id = $1`,
+			[moment.id]
+		);
+		moment.tags = tagRes.rows;
 
 		return moment;
 	}
@@ -138,11 +147,12 @@ class Moment {
 	 * This is a "partial update" --- it's fine if data doesn't contain
 	 * all the fields; this only changes provided ones.
 	 *
-	 * Data can include: { title, text }
+	 * Data can include: { title, text, date}
 	 *
 	 * Returns { id, title, text, username }
 	 *
 	 * Throws NotFoundError if not found.
+	 *
 	 */
 
 	static async update(id, data) {
@@ -155,6 +165,7 @@ class Moment {
                       RETURNING id, 
                                 title, 
                                 text, 
+								date,
                                 username`;
 		const result = await db.query(querySql, [...values, id]);
 		const moment = result.rows[0];
@@ -180,6 +191,34 @@ class Moment {
 		const moment = result.rows[0];
 
 		if (!moment) throw new NotFoundError(`No moment: ${id}`);
+	}
+
+	/** Tag given moment with given tag
+	 *
+	 * returns momentId and tagId if successful.
+	 */
+	static async applyTag(momentId, tagId) {
+		const result = await db.query(
+			`INSERT INTO moments_tags (moment_id, tag_id)
+			VALUES ($1, $2)
+			RETURNING moment_id, tag_id
+			`,
+			[momentId, tagId]
+		);
+		return result.rows[0];
+	}
+
+	/** Removes given tag from given moment
+	 *
+	 * returns undefined
+	 */
+	static async removeTag(momentId, tagId) {
+		await db.query(
+			`DELETE
+			FROM moments_tags
+			WHERE moment_id = $1 AND tag_id = $2`,
+			[momentId, tagId]
+		);
 	}
 }
 

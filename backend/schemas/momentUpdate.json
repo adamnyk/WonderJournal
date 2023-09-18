@@ -9,11 +9,14 @@
     },
     "text": {
       "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
     }
   },
   "additionalProperties": false,
   "required": [
-    "title",
-    "text"
+    
   ]
 }

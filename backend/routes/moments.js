@@ -6,13 +6,16 @@ const jsonschema = require("jsonschema");
 
 const express = require("express");
 const { BadRequestError } = require("../expressError");
-const { ensureAdmin, ensureCorrectUserOrAdmin } = require("../middleware/auth");
 const Moment = require("../models/moment");
 const momentNewSchema = require("../schemas/momentNew.json");
 const momentUpdateSchema = require("../schemas/momentUpdate.json");
 // const momentSearchSchema = require("../schemas/momentSearch.json");
 
-const router = express.Router({ mergeParams: true });
+const { ensureMomentAccess } = require("../middleware/moment")
+const {ensureCorrectUser} = require("../middleware/auth")
+
+const router = express.Router();
+
 
 
 /** POST / { moment } => { moment }
@@ -21,10 +24,10 @@ const router = express.Router({ mergeParams: true });
  *
  * Returns { id, title, text, username }
  *
- * Authorization required: admin or same user-as-:username 
+ * Authorization required: logged in 
  */
 
-router.post("/", ensureCorrectUserOrAdmin, async function (req, res, next) {
+router.post("/", ensureCorrectUser, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, momentNewSchema);
     if (!validator.valid) {
@@ -32,7 +35,7 @@ router.post("/", ensureCorrectUserOrAdmin, async function (req, res, next) {
       throw new BadRequestError(errs);
     }
 
-    const moment = await Moment.create(req.params.username, req.body);
+    const moment = await Moment.create(req.body);
     return res.status(201).json({ moment });
   } catch (err) {
     return next(err);
@@ -75,12 +78,12 @@ router.post("/", ensureCorrectUserOrAdmin, async function (req, res, next) {
  *
  * Returns { id, title, text }
  *
- * Authorization required: admin or same user-as-:username 
+ * Authorization required: moment owner
  */
 
-router.get("/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+router.get("/:momentId", ensureMomentAccess, async function (req, res, next) {
   try {
-    const moment = await Moment.get(req.params.username, req.params.id);
+    const moment = await Moment.get(req.params.momentId);
     return res.json({ moment });
   } catch (err) {
     return next(err);
@@ -88,25 +91,27 @@ router.get("/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
 });
 
 
-/** PATCH /[jobId]  { fld1, fld2, ... } => { job }
+/** PATCH /[momentId]  { key: val, key2 : val2, ... } => { moment }
  *
- * Data can include: { title, salary, equity }
+ * Data can include: { title, text, date }
  *
- * Returns { id, title, salary, equity, companyHandle }
+ * Returns { id, title, text, date, username }
  *
- * Authorization required: admin or same user-as-:username 
+ * Authorization required: moment owner
+ * 
+ * ***WARNING*** This route can change the username FK of the moment. Be sure to use json validation to prevent this. 
  */
 
-router.patch("/:id", ensureAdmin, async function (req, res, next) {
+router.patch("/:momentId", ensureMomentAccess, async function (req, res, next) {
   try {
-    const validator = jsonschema.validate(req.body, jobUpdateSchema);
+    const validator = jsonschema.validate(req.body, momentUpdateSchema);
     if (!validator.valid) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
 
-    const job = await Job.update(req.params.id, req.body);
-    return res.json({ job });
+    const moment = await Moment.update(req.params.momentId, req.body);
+    return res.json({ moment });
   } catch (err) {
     return next(err);
   }
@@ -117,10 +122,10 @@ router.patch("/:id", ensureAdmin, async function (req, res, next) {
  * Authorization required: admin or same user-as-:username 
  */
 
-router.delete("/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+router.delete("/:momentId", ensureMomentAccess,async function (req, res, next) {
   try {
-    await Moment.remove(req.params.id);
-    return res.json({ deleted: +req.params.id });
+    await Moment.remove(req.params.momentId);
+    return res.json({ deleted: +req.params.momentId });
   } catch (err) {
     return next(err);
   }
