@@ -1,8 +1,9 @@
+"use strict";
 const { UnauthorizedError } = require("../expressError");
 const Moment = require("../models/moment");
 
 /** Middleware to use when for moment routes.
- * 
+ *
  * Requirements:
  * 		- provide a valid token (logged in)
  *  	- current user must be the owner of moment (either param or `id` in request body)

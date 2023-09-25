@@ -48,10 +48,11 @@ class Moment {
 		const user = preCheck.rows[0];
 		if (!user) throw new NotFoundError(`No user: ${username}`);
 
-		const { tag, title } = searchFilters;
+		const { tag, title, text, dateStart, dateEnd } = searchFilters;
 		let query = `SELECT m.id,
                         m.title,
                         m.text,
+						m.date,
 						COALESCE(json_agg(t.name) FILTER (WHERE t.name IS NOT NULL), '[]') AS tags
                  	FROM moments m
 					LEFT JOIN moments_tags mt ON mt.moment_id = m.id
@@ -73,6 +74,20 @@ class Moment {
 			whereExpressions.push(`m.title ILIKE $${queryValues.length}`);
 		}
 
+		if (text !== undefined) {
+			queryValues.push(`%${text}%`);
+			whereExpressions.push(`m.text ILIKE $${queryValues.length}`);
+		}
+
+		if (dateStart !== undefined) {
+			queryValues.push(dateStart);
+			whereExpressions.push(`m.date >= $${queryValues.length}`);
+		}
+		if (dateEnd !== undefined) {
+			queryValues.push(dateEnd);
+			whereExpressions.push(`m.date <= $${queryValues.length}`);
+		}
+
 		if (whereExpressions.length > 0) {
 			query += " WHERE " + whereExpressions.join(" AND ");
 		}
@@ -87,9 +102,9 @@ class Moment {
 
 		query += ` ORDER BY m.id`;
 
-		console.log(queryValues);
-		console.log(whereExpressions);
-		console.log(query);
+		// console.log(queryValues);
+		// console.log(whereExpressions);
+		// console.log(query);
 		const momentRes = await db.query(query, queryValues);
 
 		return momentRes.rows;
@@ -191,6 +206,36 @@ class Moment {
 		const moment = result.rows[0];
 
 		if (!moment) throw new NotFoundError(`No moment: ${id}`);
+	}
+
+	/** Adds a new media file to a moment with 'data'.
+	 *
+	 * Data: {type, url}
+	 *
+	 * returns media: {id, type, url, momentId}
+	 */
+	static async addMedia(momentId, { type, url }) {
+		await db.query(
+			`INSERT INTO moment_media (type, url, moment_id)
+			VALUES ($1, $2, $3)
+			RETURNING id, type, url, moment_id AS 'momentId'`,
+			[type, url, momentId]
+		);
+		const media = results.rows[0];
+		return media;
+	}
+
+	/** Deletes given media id for a given moment.
+	 *
+	 * returns undefined
+	 */
+	static async removeMedia(momentMediaId) {
+		await db.query(
+			`DELETE
+			FROM moment_media
+			WHERE id = $1`,
+			[momentMediaId]
+		);
 	}
 
 	/** Tag given moment with given tag

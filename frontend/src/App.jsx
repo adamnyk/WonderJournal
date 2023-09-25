@@ -1,35 +1,83 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import { setApiToken, signupApi, loginApi, getUser } from "./api";
+import jwt_decode from "jwt-decode";
+import WJRoutes from "./common/WJRoutes";
+import NavBar from "./common/NavBar";
+import useLocalStorage from "./hooks/useLocalStorage";
+import UserContext from "./UserContext";
+import "./App.css";
+
+// Key name for storing token in localStorage for "remember me" re-login
+export const TOKEN_STORAGE_ID = "wonderJournal-token";
 
 function App() {
-  const [count, setCount] = useState(0)
+	const [currentUser, setCurrentUser] = useState(null);
+	const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+	useEffect(
+		function loadUserInfo() {
+			console.debug("App useEffect loadUserInfo", "token=", token);
+
+			async function getCurrentUser() {
+				if (token) {
+					try {
+						const { username } = jwt_decode(token);
+						setApiToken(token);
+						setCurrentUser(await getUser(username));
+					} catch (err) {
+						console.error("App: Error loading user", err);
+						setCurrentUser(null);
+					}
+				} else {
+					setCurrentUser(null);
+				}
+			}
+			getCurrentUser();
+		},
+		[token]
+	);
+
+	/** Handles site-wide signup.
+	 *
+	 * Automatically logs them in (set token) upon signup.
+	 */
+	async function signup(signupData) {
+		try {
+			let token = await signupApi(signupData);
+			setToken(token);
+			return { success: true };
+		} catch (errors) {
+			console.error("signup failed", errors);
+			return { success: false, errors };
+		}
+	}
+	/** Handles site-wide login.
+	 *
+	 * Make sure you await this function and check its return value!
+	 */
+	async function login(loginData) {
+		try {
+			let token = await loginApi(loginData);
+			setToken(token);
+			return { success: true };
+		} catch (errors) {
+			console.error("login failed", errors);
+			return { success: false, errors };
+		}
+	}
+
+	/** Handles site-wide logout. */
+	function logout() {
+		setCurrentUser(null);
+		setToken(null);
+	}
+
+	return (
+		<UserContext.Provider value={{ currentUser, setCurrentUser }}>
+			<NavBar logout={logout} />
+			<WJRoutes login={login} signup={signup} />
+		</UserContext.Provider>
+	);
 }
 
-export default App
+export default App;

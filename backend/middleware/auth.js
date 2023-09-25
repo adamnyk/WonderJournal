@@ -42,7 +42,7 @@ function ensureLoggedIn(req, res, next) {
 }
 
 /** Middleware to use when they must provide a valid token & be user matching
- *  username provided as route param.
+ *  username provided as route param 'username' or  'username' property in request body.
  *
  *  If not, raises Unauthorized.
  */

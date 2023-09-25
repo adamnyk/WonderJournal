@@ -78,4 +78,9 @@ async function deleteFolder(username, momentId) {
 	});
 }
 
-deleteObject("username", 3, "screenshot2.png");
+
+const mime = require('mime/lite');
+
+console.log(mime.getType('screenshot2.png'))
+
+// deleteObject("username", 3, "screenshot2.png");

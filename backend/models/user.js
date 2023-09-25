@@ -50,7 +50,7 @@ class User {
 
 	/** Register user with data.
 	 *
-	 * Returns { username, firstName, lastName, email, isAdmin }
+	 * Returns { username, firstName, lastName, email }
 	 *
 	 * Throws BadRequestError on duplicates.
 	 **/
@@ -64,7 +64,7 @@ class User {
 		);
 
 		if (duplicateCheck.rows[0]) {
-			throw new BadRequestError(`Duplicate username: ${username}`);
+			throw new BadRequestError(`Username already exists`);
 		}
 
 		const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);

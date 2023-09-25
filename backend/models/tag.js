@@ -16,7 +16,7 @@ class Tag {
 	 * Throws BadRequestError on duplicates.
 	 **/
 
-    static async create(username, tagName) {
+    static async create({username, tagName}) {
         tagName = tagName.toLowerCase()
 		const duplicateCheck = await db.query(
 			`SELECT name
@@ -58,14 +58,31 @@ class Tag {
         if (!tag) throw NotFoundError(`No tag with id: ${id}`)
 
         return tag
+	}
+	
+    /** Get tag from given name
+     * 
+     * Returns {id, name, username}
+     * 
+     * Does not throw error if not foud. 
+     */
+    static async getByName(name) {
+        const result = await db.query(
+            `SELECT id, name, username
+            FROM tags
+            WHERE name = $1`, [name]
+        )
+        const tag = result.rows[0]
+
+        return tag
     }
 
-	/** Find all tags for given user.
+	/** Get all tags for given user.
 	 *
 	 * Returns [{ id, name}, ...]
 	 **/
 
-    static async findAll(username) {
+    static async getAll(username) {
 		const userCheck = await db.query(
 			`SELECT username
 			From users

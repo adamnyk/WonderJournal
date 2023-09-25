@@ -12,11 +12,12 @@ const BASE_URL = "https://wonder-journal.s3.us-west-2.amazonaws.com";
 const bucketName = "wonder-journal";
 
 
+
 /**
- * 
+ *
  *
  */
-async function uploadObject(username, momentId, fileName) {
+async function uploadS3Object(username, momentId, fileName) {
 	const awsUrl = `${BASE_URL}/${username}/${momentId}/${fileName}`;
 	const fileData = fs.createReadStream(fileName);
 	fileData.on("error", function (err) {
@@ -34,12 +35,15 @@ async function uploadObject(username, momentId, fileName) {
 			console.error(err);
 		} else {
 			console.log(`File uploaded successfully. ${awsUrl}`);
-			return awsUrl
+			return {
+				url: awsUrl,
+				mimetype: fs.stat(fileName).mimetype
+			};
 		}
 	});
 }
 
-async function deleteObject(username, momentId, fileName) {
+async function deleteS3Object(username, momentId, fileName) {
 	const key = `${username}/${momentId}/${fileName}`;
 
 	const params = {
@@ -57,7 +61,7 @@ async function deleteObject(username, momentId, fileName) {
 	});
 }
 
-async function deleteFolder(username, momentId) {
+async function deleteS3Directory(username, momentId) {
 	const prefix = `${username}/` + (momentId ? `${momentId}/` : "");
 	const params = {
 		Bucket: bucketName,
@@ -84,4 +88,4 @@ async function deleteFolder(username, momentId) {
 	});
 }
 
-module.exports = { uploadObject, deleteObject, deleteFolder };
+module.exports = { uploadS3Object, deleteS3Object, deleteS3Directory };

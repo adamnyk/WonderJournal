@@ -4,3 +4,16 @@ MEDIA
 • Media is probably not used by other moments
 • Should I add a ‘type’ column? (video, img, audio)
 • Change name? moment_media?
+
+-------
+Enumeration
+Enum usually used for this need = types
+	- string, that can be any value
+	- type for a variable
+
+3 possible values only
+
+- first declare Enum
+- call media_type
+- replace string with Media type
+------- 
