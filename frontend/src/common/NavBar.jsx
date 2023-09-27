@@ -31,12 +31,12 @@ const NavBar = ({ logout }) => {
 						{currentUser ? (
 							<>
 								<NavItem>
-									<NavLink tag={RRNavlink} to="/reflect">
+									<NavLink tag={RRNavlink} to="/moments">
 										Reflect
 									</NavLink>
 								</NavItem>
 								<NavItem>
-									<NavLink tag={RRNavlink} to="/newmoment">
+									<NavLink tag={RRNavlink} to="/moments/new">
 										New Moment
 									</NavLink>
 								</NavItem>

@@ -13,7 +13,7 @@ const tagNewSchema = require("../schemas/tagNew.json");
 const { ensureCorrectUser, ensureLoggedIn } = require("../middleware/auth");
 const { ensureTagAccess } = require("../middleware/tag");
 
-const router = express.Router();
+const router = new express.Router();
 
 /** POST / { tag } => { tag : {id, name, username} }
  *

@@ -1,4 +1,13 @@
 ## Samir
+
+1. upload - look @ open source community
+2. display
+3. deploy
+
+-----
+testing
+design /decision process
+
  
  [ ] GET MOMENT/momentID
     - API error with middleware
@@ -6,14 +15,28 @@
     - why does the result still get returned if there was an error? should not be possible with the middleware
     - works fine in insomnia. Token problem?
 
+[ ] Front end validation - suppress back end messages? no way to edit message. Double up w/ front end val?
+
+[ ] Uploading a file - general outline
+    - multi-file
+    - file-type & size limit check (front end validation? via state?)
+    - storing in state - what are you actually storing? binary? format?
+    - Request - what format are you usually transmitting in? not JSON... multi-part form format - 
+        - Doing this with Node / express. routes.use(multipart)?
+
+
+[ ] SQL query - linking even more tables - getting all tags & media
+
+[ ] Post-graduation support. Other mentoring resources. Is graduating worth it?
+    - prioritizing. Yes finish capstone, but avoid other fees. 
+
+
+=======================================================================
 
 
  [X] Plan if we get kicked off? Can you do 2 meetings in a row? (missed week of Sept 4 from reschedule)
     [X] If not, get course extension...
 
-[X] Feedback on DB structure. 
-
-[X] REST API - NESTING routes & SEPARATION OF CONCERNS
 
 conventions for nested resources. Requiring middleware authorization. Need additional request to find username if trying to only edit a moment as an admin. Concept of OWNERSHIP. 
     - changing authorization acordingly to use req.body instead of request parameter / in addition

@@ -10,7 +10,7 @@ const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
 const userUpdateSchema = require("../schemas/userUpdate.json");
 
-const router = express.Router();
+const router = new express.Router();
 
 /** GET /[username] => { user }
  *

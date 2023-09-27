@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { momentGetApi } from "./api";
+import { momentGetApi } from "../api";
 import { Container } from "reactstrap";
 import MomentCard from "./MomentCard";
-import AlertMessage from "./common/AlertMessage";
-import LoadingSpinner from "./common/LoadingSpinner";
+import AlertMessage from "../common/AlertMessage";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 const MomentView = () => {
 	const { momentId } = useParams();
@@ -32,7 +32,7 @@ const MomentView = () => {
 		<div>
 			<Container className="container col-md-6  col-lg-6">
 				<MomentCard moment={moment} />
-				{errors && <AlertMessage messages={errors} />}
+				{/* {errors && <AlertMessage messages={errors} />} */}
 			</Container>
 		</div>
 	);

@@ -8,8 +8,9 @@ const express = require("express");
 const { BadRequestError } = require("../expressError");
 const Moment = require("../models/moment");
 const Tag = require("../models/tag");
+const mime = require("mime/lite");
 
-const mime = require('mime/lite');
+const router = new express.Router();
 
 const {
 	uploadS3Object,
@@ -19,12 +20,11 @@ const {
 const momentNewSchema = require("../schemas/momentNew.json");
 const momentUpdateSchema = require("../schemas/momentUpdate.json");
 const momentSearchSchema = require("../schemas/momentSearch.json");
-const tagNewSchema = require("../schemas/tagNew.json")
+const tagNewSchema = require("../schemas/tagNew.json");
 
-const { ensureMomentAccess } = require("../middleware/moment");
 const { ensureLoggedIn } = require("../middleware/auth");
+const { ensureMomentAccess } = require("../middleware/moment");
 
-const router = express.Router();
 
 /** POST / { moment } => { moment }
  *
@@ -64,7 +64,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: none
  */
 
-router.get("/",ensureLoggedIn, async function (req, res, next) {
+router.get("/", async function (req, res, next) {
 	const q = req.query;
 
 	// // arrive as strings from querystring, but we want as int/bool
@@ -77,7 +77,9 @@ router.get("/",ensureLoggedIn, async function (req, res, next) {
 			const errs = validator.errors.map((e) => e.stack);
 			throw new BadRequestError(errs);
 		}
-		console.log(q);
+
+		console.log(`KEYS=========>`, Object.keys(req.user))
+		console.log(req.user===null)
 		const moments = await Moment.findAll(req.user.username, q);
 		return res.json({ moments });
 	} catch (err) {
@@ -130,7 +132,7 @@ router.patch("/:momentId", ensureMomentAccess, async function (req, res, next) {
 /** DELETE /[momentId]  =>  { deleted: id }
  *
  * Deletes all associated media from S3
- * 
+ *
  * Authorization required: logged in as moment owner
  */
 
@@ -139,9 +141,9 @@ router.delete(
 	ensureMomentAccess,
 	async function (req, res, next) {
 		try {
-			const {momentId} = req.params
+			const { momentId } = req.params;
 			await Moment.remove(momentId);
-			await deleteS3Directory(req.users.username, momentId)
+			await deleteS3Directory(req.users.username, momentId);
 			return res.json({ deleted: +momentId });
 		} catch (err) {
 			return next(err);
@@ -168,18 +170,19 @@ router.post(
 	ensureMomentAccess,
 	async function (req, res, next) {
 		try {
-			const tagName = req.body.tagName;
-      let tag = await Tag.getByName(tagName);
-      
-			if (!tag) {
-				req.body.username = req.user.username
-				const validator = jsonschema.validate(req.body, tagNewSchema);
-				if (!validator.valid) {
-					const errs = validator.errors.map((e) => e.stack);
-					throw new BadRequestError(errs);
-				}
-				tag = await Tag.create(req.body);
+			const tagName = req.body.tagName.toLowerCase();
+			let tagCheck = await Tag.getByName(tagName);
+			if (tagCheck) {
+				throw new BadRequestError(`A tag with that name already exists.`);
 			}
+
+			req.body.username = req.user.username;
+			const validator = jsonschema.validate(req.body, tagNewSchema);
+			if (!validator.valid) {
+				const errs = validator.errors.map((e) => e.stack);
+				throw new BadRequestError(errs);
+			}
+			const tag = await Tag.create(req.body);
 
 			const { momentId } = req.params;
 			await Moment.applyTag(momentId, tag.id);
@@ -230,7 +233,6 @@ router.delete(
 	}
 );
 
-
 /********************************
  * MOMENT MEDIA
  */
@@ -238,7 +240,7 @@ router.delete(
 /** POST /[momentId]/tags/[tagId]  =>  { tag: tagId applied to moment: momentId  }
  *
  * Uploads media file to S3
- * 
+ *
  * Authorization required: logged in as moment owner
  */
 
@@ -246,11 +248,11 @@ router.post(
 	"/:momentId/media",
 	ensureMomentAccess,
 	async function (req, res, next) {
-		const {username} = req.user
+		const { username } = req.user;
 		try {
-			const mimetype = mime.getType(filepath)
-			const url = await uploadS3Object(username, params.momentId, filepath)
-			await Moment.addMedia(username, {type, url});
+			const mimetype = mime.getType(filepath);
+			const url = await uploadS3Object(username, params.momentId, filepath);
+			await Moment.addMedia(username, { type, url });
 
 			return res.json({ tagged: +momentId });
 		} catch (err) {

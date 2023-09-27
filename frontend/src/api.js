@@ -3,6 +3,7 @@ import axios from "axios";
 const VITE_BASE_URL =
 	import.meta.env.REACT_APP_BASE_URL || "http://localhost:3001";
 
+const proxyPrefix = "/api"
 /** API Module.
  *
  * A collection of methods used to get/send to to the API.
@@ -15,6 +16,8 @@ let token;
 // token =
 // 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNjk0NjMwODY3fQ.15-FHz2uX2U8HSGdimQPoXSnU3BtCAJS4foFR-qwcYY";
 
+
+
 function setApiToken(newToken) {
 	token = newToken;
 }
@@ -23,6 +26,7 @@ async function request(endpoint, data = {}, method = "get") {
 	console.debug("API Call:", endpoint, data, method);
 
 	const url = `${VITE_BASE_URL}/${endpoint}`;
+	// const url = `${proxyPrefix}/${endpoint}`;
 	const headers = { Authorization: `Bearer ${token}` };
 	const params = method === "get" ? data : {};
 
@@ -64,15 +68,27 @@ async function updateUser(username, data = { firstName, lastName, email }) {
 	return res.user;
 }
 
-async function momentCreateApi(data = { title, text, date:undefined}) {
+async function momentCreateApi(data = { title, text, date: undefined }) {
 	let res = await request(`moments/`, data, "post");
 	return res.moment;
 }
 
-export async function momentGetApi(momentId) {
+async function momentGetApi(momentId) {
 	let res = await request(`moments/${momentId}`);
 	return res.moment;
 }
 
+async function momentGetAllApi() {
+	let res = await request(`moments/`);
+	return res.moment;
+}
 
-export { setApiToken, signupApi, loginApi, getUser, momentCreateApi };
+export {
+	setApiToken,
+	signupApi,
+	loginApi,
+	getUser,
+	momentCreateApi,
+	momentGetApi,
+	momentGetAllApi,
+};

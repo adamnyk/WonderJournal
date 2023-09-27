@@ -17,7 +17,6 @@ function App() {
 	useEffect(
 		function loadUserInfo() {
 			console.debug("App useEffect loadUserInfo", "token=", token);
-
 			async function getCurrentUser() {
 				if (token) {
 					try {

@@ -12,7 +12,12 @@ const Moment = require("../models/moment");
  */
 async function ensureMomentAccess(req, res, next) {
 	try {
+
+		// if (!req.user) throw new UnauthorizedError();
+
+
 		const currentUser = req.user.username;
+
 		if (!currentUser) throw new UnauthorizedError();
 
 		const momentId = req.params.momentId || req.body.id;

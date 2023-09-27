@@ -1,8 +1,7 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AlertMessage from "../common/AlertMessage";
-import { momentCreateApi } from "../api";
-
+import {momentCreateApi} from "../api"
 
 import {
 	Card,
@@ -15,6 +14,7 @@ import {
 	InputGroup,
 	InputGroupText,
 	Button,
+	CardHeader,
 } from "reactstrap";
 
 function MomentNewForm() {
@@ -34,7 +34,6 @@ function MomentNewForm() {
 		"formErrors=",
 		formErrors
 	);
-
 
 	/** Handle form submit:
 	 *
@@ -59,8 +58,10 @@ function MomentNewForm() {
 
 	return (
 		<Container className="MomentNewForm  col-sm-8 col-md-6 col-xl-4">
-			<h2>New Moment</h2>
-			<Card>
+			<Card color="light">
+				<CardHeader>
+					<h2 className="mb-0">New Moment</h2>
+				</CardHeader>
 				<CardBody>
 					<Form onSubmit={handleSubmit}>
 						<div className="mb-3">
