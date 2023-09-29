@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(morgan("tiny"));
 app.use(authenticateJWT);
 
-// app.use("/api")
+
 app.use("/auth", authRoutes);
 app.use("/moments", momentsRoutes);
 app.use("/users", usersRoutes);
