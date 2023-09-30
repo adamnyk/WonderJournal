@@ -64,7 +64,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: none
  */
 
-router.get("/", async function (req, res, next) {
+router.get("/", ensureLoggedIn, async function (req, res, next) {
 	const q = req.query;
 
 	// // arrive as strings from querystring, but we want as int/bool

@@ -34,7 +34,8 @@ function authenticateJWT(req, res, next) {
 
 function ensureLoggedIn(req, res, next) {
 	try {
-		if (!req.user) throw new UnauthorizedError();
+		if (!(req.user && req.user.username)) throw new UnauthorizedError()
+		// if (!req.user) throw new UnauthorizedError();
 		return next();
 	} catch (err) {
 		return next(err);

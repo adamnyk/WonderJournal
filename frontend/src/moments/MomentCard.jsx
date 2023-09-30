@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
 	Container,
 	CardBody,
@@ -5,21 +6,15 @@ import {
 	CardText,
 	CardHeader,
 	CardFooter,
-	Dropdown,
-	DropdownToggle,
-	DropdownMenu,
-	DropdownItem,
 } from "reactstrap";
 import formatDate from "../helpers/formatDate";
 import TagBadge from "../common/TagBadge";
-import { useState } from "react";
+import { TagAddDropdownForm } from "../forms/TagAddDropdownForm";
 
 const MomentCard = ({ moment }) => {
 	const { id, title, text, date, tags } = moment;
 
-	const [dropdownOpen, setDropdownOpen] = useState(false);
 
-	const toggle = () => setDropdownOpen((prevState) => !prevState);
 
 	return (
 		<Card color="light" className="mb-2 shadow-sm">
@@ -48,26 +43,7 @@ const MomentCard = ({ moment }) => {
 				{tags.map((tag) => (
 					<TagBadge tag={tag} key={tag.id} />
 				))}
-				<Dropdown
-					className="float-right"
-					small="true"
-					isOpen={dropdownOpen}
-					toggle={toggle}
-					direction="left"
-				>
-					<DropdownToggle tag="span" className="">
-						<a className="fa-solid fa-circle-plus align-middle text-secondary"></a>
-					</DropdownToggle>
-
-					<DropdownMenu>
-						<DropdownItem header>Header</DropdownItem>
-						<DropdownItem>Some Action</DropdownItem>
-						<DropdownItem text>Dropdown Item Text</DropdownItem>
-						<DropdownItem disabled>Action (disabled)</DropdownItem>
-						<DropdownItem divider />
-						<DropdownItem>Foo Action</DropdownItem>
-					</DropdownMenu>
-				</Dropdown>
+				<TagAddDropdownForm tags={tags} momentId={id}/>
 			</CardFooter>
 		</Card>
 	);

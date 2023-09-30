@@ -11,10 +11,6 @@ const VITE_BASE_URL =
 // the token for interactive with the API will be stored here.
 let token;
 
-//Temporary token set for development
-// token =
-// 	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNjk0NjMwODY3fQ.15-FHz2uX2U8HSGdimQPoXSnU3BtCAJS4foFR-qwcYY";
-
 function setApiToken(newToken) {
 	token = newToken;
 }
@@ -23,7 +19,6 @@ async function request(endpoint, data = {}, method = "get") {
 	console.debug("API Call:", endpoint, data, method);
 
 	const url = `${VITE_BASE_URL}/${endpoint}`;
-	// const url = `${proxyPrefix}/${endpoint}`;
 	const headers = { Authorization: `Bearer ${token}` };
 	const params = method === "get" ? data : {};
 
@@ -78,6 +73,10 @@ async function momentGetApi(momentId) {
 async function momentGetAllApi() {
 	let res = await request(`moments/`);
 	return res.moment;
+}
+
+async function tagMomentApi() {
+	
 }
 
 export {
