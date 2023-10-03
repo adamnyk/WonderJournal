@@ -3,6 +3,7 @@ import axios from "axios";
 const VITE_BASE_URL =
 	import.meta.env.REACT_APP_BASE_URL || "http://localhost:3001";
 
+
 /** API Module.
  *
  * A collection of methods used to get/send to to the API.
@@ -19,6 +20,7 @@ async function request(endpoint, data = {}, method = "get") {
 	console.debug("API Call:", endpoint, data, method, token);
 
 	const url = `${VITE_BASE_URL}/${endpoint}`;
+	console.log(url)
 	const headers = { Authorization: `Bearer ${token}` };
 	const params = method === "get" ? data : {};
 
