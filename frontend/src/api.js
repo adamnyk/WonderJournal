@@ -21,7 +21,10 @@ async function request(endpoint, data = {}, method = "get") {
 
 	const url = `${VITE_BASE_URL}/${endpoint}`;
 	console.log(url)
-	const headers = { Authorization: `Bearer ${token}` };
+	const headers = {
+		Authorization: `Bearer ${token}`,
+		'Content-Type': 'application/json'
+	};
 	const params = method === "get" ? data : {};
 
 	try {
