@@ -16,7 +16,7 @@ function setApiToken(newToken) {
 }
 
 async function request(endpoint, data = {}, method = "get") {
-	console.debug("API Call:", endpoint, data, method);
+	console.debug("API Call:", endpoint, data, method, token);
 
 	const url = `${VITE_BASE_URL}/${endpoint}`;
 	const headers = { Authorization: `Bearer ${token}` };
@@ -70,13 +70,18 @@ async function momentGetApi(momentId) {
 	return res.moment;
 }
 
-async function momentGetAllApi() {
-	let res = await request(`moments/`);
-	return res.moment;
+async function momentGetAllApi(title) {
+	let res = await request(`moments/`, {title});
+	return res.moments;
 }
 
-async function tagMomentApi() {
-	
+/** Tag Moment
+ * 
+ * 	Creates new tag and applies it to moment
+ */
+async function addNewMomentTagApi(momentId, data = {tagName}) {
+	let res = await request(`moments/${momentId}/tags`, data, "post")
+	return res.tag
 }
 
 export {
@@ -87,4 +92,5 @@ export {
 	momentCreateApi,
 	momentGetApi,
 	momentGetAllApi,
+	addNewMomentTagApi
 };

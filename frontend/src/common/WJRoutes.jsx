@@ -8,7 +8,7 @@ import MomentViewAll from "../moments/MomentViewAll"
 
 const WJRoutes = ({ login, signup }) => {
 	return (
-		<div className="p-3 text-center">
+		<div className="pt-3 text-center">
 			<Routes>
 				<Route path="/" element={<Home />} />
 				<Route path="/login" element={<LoginForm login={login} />} />

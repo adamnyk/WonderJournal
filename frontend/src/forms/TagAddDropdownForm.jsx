@@ -1,19 +1,25 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
 	Dropdown,
 	DropdownToggle,
 	DropdownMenu,
+	DropdownItem,
 	Form,
 	Input,
 	InputGroup,
 	Label,
 	Button,
 } from "reactstrap";
+import TagBadge from "../common/TagBadge";
+import MomentContext from "../moments/MomentContext";
+import { addNewMomentTagApi } from "../api";
 
-export const TagAddDropdownForm = ({ tags, momentId }) => {
+export const TagAddDropdownForm = ({ momentTags, momentId, addNewTag }) => {
+	const { setMoment } = useContext(MomentContext);
+
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const [formData, setFormData] = useState({
-		name: "",
+		tagName: "",
 	});
 	const [formErrors, setFormErrors] = useState([]);
 
@@ -24,13 +30,15 @@ export const TagAddDropdownForm = ({ tags, momentId }) => {
 		setFormData((data) => ({ ...data, [name]: value }));
 	}
 
-	const handleSubmit = (evt) => {
+	const handleSubmit = async (evt) => {
 		evt.preventDefault();
-		try {
-			// await momentCreateApi(formData);
-			navigate("/");
-		} catch (err) {
-			setFormErrors(err);
+		if (formData.tagName.length) {
+			try {
+				const { id, name } = await addNewMomentTagApi(momentId, formData);
+				setMoment((m) => ({ ...m, tags: [...m.tags, { id, name }] }));
+			} catch (err) {
+				setFormErrors(err);
+			}
 		}
 	};
 
@@ -47,11 +55,15 @@ export const TagAddDropdownForm = ({ tags, momentId }) => {
 			</DropdownToggle>
 
 			<DropdownMenu className="py-1">
+				{/* {momentTags.map((tag) => (
+					<TagBadge tag={tag} key={tag.id} />
+				))}
+				<DropdownItem divider /> */}
 				<Form onSubmit={handleSubmit} className="m-1">
-					<InputGroup className=" input-group-sm ">
+					<InputGroup size="sm">
 						<Input
 							id="tagName"
-							name="name"
+							name="tagName"
 							placeholder="New tag"
 							onChange={handleChange}
 							className="form-control"
@@ -59,7 +71,7 @@ export const TagAddDropdownForm = ({ tags, momentId }) => {
 						<Label hidden htmlFor="tagName">
 							Tag Name
 						</Label>
-						<Button color="outline-primary" className="form-control btn-sm">
+						<Button color="outline-primary" className="form-control p-0">
 							Add
 						</Button>
 					</InputGroup>

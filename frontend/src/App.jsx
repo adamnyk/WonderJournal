@@ -5,6 +5,7 @@ import WJRoutes from "./common/WJRoutes";
 import NavBar from "./common/NavBar";
 import useLocalStorage from "./hooks/useLocalStorage";
 import UserContext from "./UserContext";
+import LoadingSpinner from "./common/LoadingSpinner";
 import "./App.css";
 
 // Key name for storing token in localStorage for "remember me" re-login
@@ -13,6 +14,7 @@ export const TOKEN_STORAGE_ID = "wonderJournal-token";
 function App() {
 	const [currentUser, setCurrentUser] = useState(null);
 	const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
+	const [infoLoaded, setInfoLoaded] = useState(false);
 
 	useEffect(
 		function loadUserInfo() {
@@ -30,7 +32,9 @@ function App() {
 				} else {
 					setCurrentUser(null);
 				}
+				setInfoLoaded(true);
 			}
+			setInfoLoaded(false);
 			getCurrentUser();
 		},
 		[token]
@@ -71,6 +75,7 @@ function App() {
 		setToken(null);
 	}
 
+	if (!infoLoaded) return <LoadingSpinner />;
 	return (
 		<UserContext.Provider value={{ currentUser, setCurrentUser }}>
 			<NavBar logout={logout} />

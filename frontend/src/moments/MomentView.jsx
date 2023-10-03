@@ -5,6 +5,7 @@ import { Container } from "reactstrap";
 import MomentCard from "./MomentCard";
 import AlertMessage from "../common/AlertMessage";
 import LoadingSpinner from "../common/LoadingSpinner";
+import MomentContext from "./MomentContext";
 
 const MomentView = () => {
 	const { momentId } = useParams();
@@ -30,10 +31,12 @@ const MomentView = () => {
 
 	return (
 		<div>
-			<Container className="container col-md-6  col-lg-6">
-				<MomentCard moment={moment} />
-				{/* {errors && <AlertMessage messages={errors} />} */}
-			</Container>
+			<MomentContext.Provider value={{ moment, setMoment }}>
+				<Container className="container col-md-6  col-lg-6">
+					<MomentCard moment={moment} dropdown={true} />
+					{/* {errors && <AlertMessage messages={errors} />} */}
+				</Container>
+			</MomentContext.Provider>
 		</div>
 	);
 };

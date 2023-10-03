@@ -53,7 +53,8 @@ class Moment {
                         m.title,
                         m.text,
 						m.date,
-						COALESCE(json_agg((t.id, t.name)) FILTER (WHERE t.name IS NOT NULL), '[]') AS tags
+						COALESCE(json_agg(json_build_object('id', t.id, 'name', t.name))
+						FILTER (WHERE t.name IS NOT NULL), '[]') AS tags
                  	FROM moments m
 					LEFT JOIN moments_tags mt ON mt.moment_id = m.id
 					LEFT JOIN tags t ON t.id = mt.tag_id
@@ -100,7 +101,7 @@ class Moment {
 		}
 		// Finalize query and return results
 
-		query += ` ORDER BY m.id`;
+		query += ` ORDER BY m.date DESC`;
 
 		// console.log(queryValues);
 		// console.log(whereExpressions);

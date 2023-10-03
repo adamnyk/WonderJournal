@@ -25,7 +25,6 @@ const tagNewSchema = require("../schemas/tagNew.json");
 const { ensureLoggedIn } = require("../middleware/auth");
 const { ensureMomentAccess } = require("../middleware/moment");
 
-
 /** POST / { moment } => { moment }
  *
  * moment should be { title, text, [date] }
@@ -78,8 +77,6 @@ router.get("/", ensureLoggedIn, async function (req, res, next) {
 			throw new BadRequestError(errs);
 		}
 
-		console.log(`KEYS=========>`, Object.keys(req.user))
-		console.log(req.user===null)
 		const moments = await Moment.findAll(req.user.username, q);
 		return res.json({ moments });
 	} catch (err) {
@@ -172,10 +169,11 @@ router.post(
 		try {
 			const tagName = req.body.tagName.toLowerCase();
 			let tagCheck = await Tag.getByName(tagName);
+			console.log("tagcheck", tagCheck);
 			if (tagCheck) {
 				throw new BadRequestError(`A tag with that name already exists.`);
 			}
-
+			
 			req.body.username = req.user.username;
 			const validator = jsonschema.validate(req.body, tagNewSchema);
 			if (!validator.valid) {
@@ -186,7 +184,7 @@ router.post(
 
 			const { momentId } = req.params;
 			await Moment.applyTag(momentId, tag.id);
-			return res.json({ tagged: tag.name });
+			return res.json({ tag });
 		} catch (err) {
 			return next(err);
 		}

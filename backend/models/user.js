@@ -136,6 +136,15 @@ class User {
 		);
 
 		user.moments = userMomentsRes.rows.map((m) => m.id);
+
+		// const userTagsRes = await db.query(
+		// 	`SELECT id, name
+		// 	FROM tags
+		// 	WHERE username = $1
+		// 	ORDER BY id`, [username]
+		// );
+		// user.tags = userTagsRes.rows
+
 		return user;
 	}
 

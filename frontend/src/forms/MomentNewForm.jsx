@@ -43,8 +43,8 @@ function MomentNewForm() {
 	async function handleSubmit(evt) {
 		evt.preventDefault();
 		try {
-			await momentCreateApi(formData);
-			navigate("/");
+			const newMoment = await momentCreateApi(formData);
+			navigate(`/moments/${newMoment.id}`);
 		} catch (err) {
 			setFormErrors(err);
 		}
