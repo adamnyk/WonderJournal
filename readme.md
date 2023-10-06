@@ -56,7 +56,7 @@ Future functionality will allow the sharing of these moments with via email and 
 
 ## User Flow
 
-![user flow diagram](../proposal/User Flow.png)
+![user flow diagram](/proposal/user%20flow.png)
 
 
 
@@ -68,7 +68,7 @@ Future functionality will allow the sharing of these moments with via email and 
 
 ## Database ERD
 
-![Database entity relationship diagram](/Users/adampecan/Documents/Springboard/Exercises/Capstone-2_WonderJournal/proposal/db_erd.png)
+![Database entity relationship diagram](/proposal/db_erd.png)
 
 
 
