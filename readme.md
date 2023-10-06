@@ -56,7 +56,7 @@ Future functionality will allow the sharing of these moments with via email and 
 
 ## User Flow
 
-![user flow diagram](/Users/adampecan/Documents/Springboard/Exercises/Capstone-2_WonderJournal/proposal/User Flow.png)
+![user flow diagram](../proposal/User Flow.png)
 
 
 
