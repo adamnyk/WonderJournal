@@ -75,7 +75,7 @@ function App() {
 		setToken(null);
 	}
 
-	if (!infoLoaded) return <LoadingSpinner />;
+	if (!infoLoaded) return <LoadingSpinner className="mt-5" />;
 	return (
 		<UserContext.Provider value={{ currentUser, setCurrentUser }}>
 			<NavBar logout={logout} />

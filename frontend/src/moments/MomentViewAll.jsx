@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { momentGetAllApi } from "../api";
 import { Container } from "reactstrap";
+import {debounce} from "debounce"
 
 import AlertMessage from "../common/AlertMessage";
 import LoadingSpinner from "../common/LoadingSpinner";
@@ -29,6 +30,8 @@ const MomentViewAll = () => {
 		setMoments(moments);
 	}
 
+	const debounceSearch =  debounce(search, 500)
+
 	if (!moments) {
 		return (
 			<>{errors ? <AlertMessage messages={errors} /> : <LoadingSpinner />}</>
@@ -38,7 +41,7 @@ const MomentViewAll = () => {
 	return (
 		<div className="MomentViewAll">
 			<Container className="container col-md-8  col-lg-6">
-				<SearchForm searchFor={search} />
+				<SearchForm searchFor={debounceSearch} />
 				{moments.length ? (
 					<div>
 						{moments.map((m) => (

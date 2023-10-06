@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { debounce } from "debounce";
+import React, { useState, useEffect } from "react";
+
 
 function SearchForm({ searchFor }) {
 	console.debug("SearchForm", "searchFor=", typeof searchFor);
@@ -7,22 +7,17 @@ function SearchForm({ searchFor }) {
 	const [searchTerm, setSearchTerm] = useState("");
 
 	/** Tell parent to filter */
-	//   function handleSubmit(evt) {
-	//     // take care of accidentally trying to search for just spaces
-	//     evt.preventDefault();
-	//     searchFor(searchTerm.trim() || undefined);
-	//     setSearchTerm(searchTerm.trim());
-	//   }
-	function search() {
+	// take care of accidentally trying to search for just spaces
+
+	useEffect(() => {
 		searchFor(searchTerm.trim() || undefined);
-		// setSearchTerm(searchTerm.trim());
-	}
+	}, [searchTerm]);
 
 	/** Update form fields */
 	function handleChange(e) {
-        setSearchTerm(e.target.value);
-        debounce(searchFor(e.target.value), 500)
+		setSearchTerm(e.target.value);
 	}
+	// search();
 
 	return (
 		<div className="SearchForm mb-4">
