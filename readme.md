@@ -14,8 +14,9 @@ The application allows users to create and save'moments' that they wish to recor
 
 Future functionality will allow the sharing of these moments with via email and other forms of direct message.
 
-<span style="color:red">Include product screenshots / video</span>
-
+```diff
+- Include product screenshots / video
+```
 
 
 ## Features
@@ -45,8 +46,6 @@ Future functionality will allow the sharing of these moments with via email and 
 
 ## Tech Stack
 
-<span style="color:red">Include logos</span>
-
 - React
 - Express & Node.js
 - Postgres SQL
@@ -62,7 +61,9 @@ Future functionality will allow the sharing of these moments with via email and 
 
 ## High Level Project Architcture
 
-<span style="color:red">Put diagram here</span>
+```diff
+- add diagram here
+```
 
 
 
@@ -77,7 +78,9 @@ Future functionality will allow the sharing of these moments with via email and 
 
 Express api with routes for user authentication and user, moment, tag, and media management. 
 
-<span style="color:red">List routes / link to API reference</span>
+```diff
+- List routes / link to API reference
+```
 
 
 
@@ -91,9 +94,9 @@ Express api with routes for user authentication and user, moment, tag, and media
 
 **Error Handling:** centralized middleware sends an error response in the following format:	
 
-Client Side Routing:
+**Client Side Routing:** in process. Will be handled by formik
 
-Cloud Object Storage: 
+**Cloud Object Storage: ** provided by AWS S3
 
 
 
